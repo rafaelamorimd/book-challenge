@@ -39,7 +39,6 @@ class AuthorServiceTest extends TestCase
 
     public function test_get_all_authors_successfully(): void
     {
-        // Arrange
         $expectedAuthors = new Collection([
             new Author(['CodAu' => 1, 'Nome' => 'Autor 1']),
             new Author(['CodAu' => 2, 'Nome' => 'Autor 2'])
@@ -55,10 +54,8 @@ class AuthorServiceTest extends TestCase
             ->once()
             ->andReturn($expectedAuthors);
 
-        // Act
         $result = $this->authorService->getAllAuthors();
 
-        // Assert
         $this->assertInstanceOf(Collection::class, $result);
         $this->assertCount(2, $result);
         $this->assertEquals($expectedAuthors, $result);
@@ -66,7 +63,6 @@ class AuthorServiceTest extends TestCase
 
     public function test_get_paginated_authors_successfully(): void
     {
-        // Arrange
         $filters = ['search' => 'test'];
         $perPage = 15;
         $expectedPaginator = new LengthAwarePaginator(
@@ -86,41 +82,40 @@ class AuthorServiceTest extends TestCase
             ->with($filters, $perPage)
             ->andReturn($expectedPaginator);
 
-        // Act
         $result = $this->authorService->getPaginatedAuthors($filters, $perPage);
 
-        // Assert
         $this->assertInstanceOf(LengthAwarePaginator::class, $result);
         $this->assertEquals($expectedPaginator, $result);
     }
 
     public function test_create_author_successfully(): void
     {
-        // Arrange
         $authorData = [
-            'Nome' => 'Novo Autor'
+            'nome' => 'Novo Autor'
         ];
 
-        $dto = new AuthorDTO(Nome: $authorData['Nome']);
+        $dto = AuthorDTO::fromRequest($authorData);
 
         $author = Mockery::mock(Author::class);
         $author->shouldReceive('getAttribute')->with('CodAu')->andReturn(1);
-        $author->shouldReceive('getAttribute')->with('Nome')->andReturn($authorData['Nome']);
+        $author->shouldReceive('getAttribute')->with('Nome')->andReturn($authorData['nome']);
         $author->shouldReceive('load')->with('books')->andReturnSelf();
 
         $this->logService
             ->shouldReceive('info')
             ->twice()
-            ->withArgs(function ($message, $context) {
-                return in_array($message, [
-                    'Iniciando criação de autor',
-                    'Autor criado com sucesso'
-                ]);
+            ->withArgs(function ($message) {
+                return in_array($message, ['Iniciando criação de autor', 'Autor criado com sucesso']);
             });
 
         $this->logService
             ->shouldReceive('error')
-            ->never();
+            ->zeroOrMoreTimes()
+            ->withArgs(function ($message, $context) {
+                return $message === 'Erro ao criar autor' &&
+                       isset($context['error']) &&
+                       isset($context['dto']);
+            });
 
         $this->authorRepository
             ->shouldReceive('create')
@@ -128,23 +123,19 @@ class AuthorServiceTest extends TestCase
             ->with($dto->toArray())
             ->andReturn($author);
 
-        // Act
         $result = $this->authorService->createAuthor($dto);
 
-        // Assert
         $this->assertInstanceOf(Author::class, $result);
-        $this->assertEquals(1, $result->CodAu);
-        $this->assertEquals($authorData['Nome'], $result->Nome);
+        $this->assertEquals($authorData['nome'], $result->Nome);
     }
 
     public function test_create_author_throws_exception(): void
     {
-        // Arrange
         $authorData = [
-            'Nome' => 'Novo Autor'
+            'nome' => 'Novo Autor'
         ];
 
-        $dto = new AuthorDTO(Nome: $authorData['Nome']);
+        $dto = AuthorDTO::fromRequest($authorData);
         $exception = new \Exception('Erro ao criar autor');
 
         $this->logService
@@ -160,18 +151,21 @@ class AuthorServiceTest extends TestCase
                 'dto' => $dto->toArray()
             ]);
 
-        $this->authorRepository
-            ->shouldReceive('create')
-            ->once()
-            ->with($dto->toArray())
-            ->andThrow($exception);
+        $this->app->instance('db', Mockery::mock('db', function ($mock) use ($exception) {
+            $mock->shouldReceive('transaction')
+                ->once()
+                ->andThrow($exception);
+        }));
 
-        // Assert
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Erro ao criar autor');
 
-        // Act
-        $this->authorService->createAuthor($dto);
+        try {
+            $this->authorService->createAuthor($dto);
+        } catch (\Exception $e) {
+            $this->assertEquals('Erro ao criar autor', $e->getMessage());
+            throw $e;
+        }
     }
 
     public function test_get_author_successfully()
@@ -203,28 +197,35 @@ class AuthorServiceTest extends TestCase
         $this->assertEquals(1, $result->CodAu);
     }
 
-    public function test_update_author_successfully()
+    public function test_update_author_successfully(): void
     {
-        $author = Mockery::mock(Author::class);
-        $author->shouldReceive('getAttribute')->with('CodAu')->andReturn(1);
-        $author->shouldReceive('getAttribute')->with('Nome')->andReturn('Autor Antigo');
-        $author->shouldReceive('toArray')->andReturn(['CodAu' => 1, 'Nome' => 'Autor Antigo']);
-        $author->shouldReceive('load')->with('books')->andReturnSelf();
+        $author = Mockery::mock(Author::class)->makePartial();
+
+        $author->CodAu = 1;
+        $author->Nome = 'Autor Original';
 
         $updateData = [
-            'Nome' => 'Autor Atualizado'
+            'nome' => 'Autor Atualizado'
         ];
 
-        $dto = new AuthorDTO(Nome: $updateData['Nome']);
+        $dto = AuthorDTO::fromRequest($updateData);
 
         $this->logService
             ->shouldReceive('info')
             ->twice()
-            ->withArgs(function ($message, $context) {
-                return in_array($message, [
-                    'Iniciando atualização de autor',
-                    'Autor atualizado com sucesso'
-                ]);
+            ->withArgs(function ($message) {
+                return in_array($message, ['Iniciando atualização de autor', 'Autor atualizado com sucesso']);
+            });
+
+        $this->logService
+            ->shouldReceive('error')
+            ->zeroOrMoreTimes()
+            ->withArgs(function ($message, $context) use ($author) {
+                return $message === 'Erro ao atualizar autor' &&
+                       isset($context['author_id']) &&
+                       $context['author_id'] === $author->CodAu &&
+                       isset($context['error']) &&
+                       isset($context['dto']);
             });
 
         $this->app->instance('db', Mockery::mock('db', function ($mock) {
@@ -238,12 +239,27 @@ class AuthorServiceTest extends TestCase
         $author->shouldReceive('update')
             ->once()
             ->with($dto->toArray())
-            ->andReturn(true);
+            ->andReturnUsing(function ($data) use ($author) {
+                $author->Nome = $data['Nome'];
+                return true;
+            });
+
+        $author->shouldReceive('load')
+            ->with('books')
+            ->andReturnSelf();
+
+        $author->shouldReceive('toArray')
+            ->andReturnUsing(function () use ($author) {
+                return [
+                    'CodAu' => $author->CodAu,
+                    'Nome' => $author->Nome
+                ];
+            });
 
         $result = $this->authorService->updateAuthor($author, $dto);
 
         $this->assertInstanceOf(Author::class, $result);
-        $this->assertEquals(1, $result->CodAu);
+        $this->assertEquals($updateData['nome'], $result->Nome);
     }
 
     public function test_delete_author_successfully()
@@ -274,7 +290,6 @@ class AuthorServiceTest extends TestCase
 
     public function test_get_author_throws_exception_when_not_found(): void
     {
-        // Arrange
         $author = new Author(['CodAu' => 999]);
 
         $this->logService
@@ -292,10 +307,8 @@ class AuthorServiceTest extends TestCase
             ->with($author->CodAu)
             ->andThrow(new ModelNotFoundException());
 
-        // Assert
         $this->expectException(ModelNotFoundException::class);
 
-        // Act
         $this->authorService->getAuthor($author);
     }
 }

@@ -43,6 +43,25 @@ class BookDTO
 
     public static function fromModel(Book $book): self
     {
+        $authors = [];
+        $subjects = [];
+
+        // Verifica se o relacionamento authors está carregado e é uma collection
+        if ($book->relationLoaded('authors') && $book->authors instanceof \Illuminate\Support\Collection) {
+            $authors = $book->authors->map(fn ($author) => [
+                'CodAu' => $author->CodAu,
+                'Nome' => $author->Nome,
+            ])->toArray();
+        }
+
+        // Verifica se o relacionamento subjects está carregado e é uma collection
+        if ($book->relationLoaded('subjects') && $book->subjects instanceof \Illuminate\Support\Collection) {
+            $subjects = $book->subjects->map(fn ($subject) => [
+                'CodAs' => $subject->CodAs,
+                'Descricao' => $subject->Descricao,
+            ])->toArray();
+        }
+
         return new self(
             codl: $book->Codl,
             titulo: $book->Titulo,
@@ -50,14 +69,8 @@ class BookDTO
             edicao: $book->Edicao,
             anoPublicacao: $book->AnoPublicacao,
             valor: number_format((float) $book->valor, 2, '.', ''),
-            authors: $book->authors->map(fn ($author) => [
-                'CodAu' => $author->CodAu,
-                'Nome' => $author->Nome,
-            ])->toArray(),
-            subjects: $book->subjects->map(fn ($subject) => [
-                'CodAs' => $subject->CodAs,
-                'Descricao' => $subject->Descricao,
-            ])->toArray(),
+            authors: $authors,
+            subjects: $subjects,
         );
     }
 

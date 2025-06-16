@@ -50,11 +50,25 @@ class BookServiceTest extends TestCase
 
         $attributes = array_merge($defaultAttributes, $attributes);
 
-        /** @var Book|MockInterface $bookMock */
         $bookMock = Mockery::mock(Book::class)->makePartial();
 
+        $authorsCollection = collect([
+            (object)['CodAu' => 1, 'Nome' => 'Autor 1'],
+            (object)['CodAu' => 2, 'Nome' => 'Autor 2']
+        ]);
+        $subjectsCollection = collect([
+            (object)['CodAs' => 1, 'Descricao' => 'Assunto 1'],
+            (object)['CodAs' => 2, 'Descricao' => 'Assunto 2']
+        ]);
+
         $bookMock->shouldReceive('getAttribute')
-            ->andReturnUsing(function ($key) use ($bookMock) {
+            ->andReturnUsing(function ($key) use ($bookMock, $authorsCollection, $subjectsCollection) {
+                if ($key === 'authors') {
+                    return $authorsCollection;
+                }
+                if ($key === 'subjects') {
+                    return $subjectsCollection;
+                }
                 return $bookMock->$key ?? null;
             });
 
@@ -68,18 +82,43 @@ class BookServiceTest extends TestCase
             $bookMock->$key = $value;
         }
 
+        $bookMock->shouldReceive('getRelation')
+            ->with('authors')
+            ->andReturn($authorsCollection);
+
+        $bookMock->shouldReceive('getRelation')
+            ->with('subjects')
+            ->andReturn($subjectsCollection);
+
+        $bookMock->shouldReceive('authors')
+            ->andReturn($authorsCollection);
+
+        $bookMock->shouldReceive('subjects')
+            ->andReturn($subjectsCollection);
+
+        $bookMock->shouldReceive('relationLoaded')
+            ->with('authors')
+            ->andReturn(true);
+
+        $bookMock->shouldReceive('relationLoaded')
+            ->with('subjects')
+            ->andReturn(true);
+
+        $bookMock->authors = $authorsCollection;
+        $bookMock->subjects = $subjectsCollection;
+
         return $bookMock;
     }
 
     private function createBookData(array $attributes = []): array
     {
         $defaultData = [
-            'Codl' => 1,
-            'Titulo' => 'Novo Livro',
-            'Editora' => 'Editora Teste',
-            'Edicao' => 1,
-            'AnoPublicacao' => (string)2024,
-            'valor' => '10.00',
+            'codl' => 1,
+            'titulo' => 'Novo Livro',
+            'editora' => 'Editora Teste',
+            'edicao' => 1,
+            'anoPublicacao' => (string)2024,
+            'valor' => '10,00',
             'authors' => [1, 2],
             'subjects' => [1, 2]
         ];
@@ -231,9 +270,9 @@ class BookServiceTest extends TestCase
     {
         $bookMock = $this->createBookMock();
         $updateData = $this->createBookData([
-            'Titulo' => 'Livro Atualizado',
-            'Editora' => 'Editora Atualizada',
-            'Edicao' => 2
+            'titulo' => 'Livro Atualizado',
+            'editora' => 'Editora Atualizada',
+            'edicao' => 2
         ]);
 
         $dto = BookDTO::fromRequest($updateData);
@@ -263,21 +302,9 @@ class BookServiceTest extends TestCase
                 });
         }));
 
-        $bookMock->shouldReceive('toArray')
-            ->andReturnUsing(function () use ($bookMock) {
-                return [
-                    'Codl' => $bookMock->Codl,
-                    'Titulo' => $bookMock->Titulo,
-                    'Editora' => $bookMock->Editora,
-                    'Edicao' => $bookMock->Edicao,
-                    'AnoPublicacao' => $bookMock->AnoPublicacao,
-                    'valor' => $bookMock->valor
-                ];
-            });
-
         $bookMock->shouldReceive('update')
             ->once()
-            ->with($updateData)
+            ->with($dto->toArray())
             ->andReturnUsing(function ($data) use ($bookMock) {
                 foreach ($data as $key => $value) {
                     $bookMock->setAttribute($key, $value);
@@ -293,9 +320,9 @@ class BookServiceTest extends TestCase
         $result = $this->bookService->updateBook($bookMock, $dto);
 
         $this->assertInstanceOf(Book::class, $result);
-        $this->assertEquals($updateData['Titulo'], $result->Titulo);
-        $this->assertEquals($updateData['Editora'], $result->Editora);
-        $this->assertEquals($updateData['Edicao'], $result->Edicao);
+        $this->assertEquals($updateData['titulo'], $result->Titulo);
+        $this->assertEquals($updateData['editora'], $result->Editora);
+        $this->assertEquals($updateData['edicao'], $result->Edicao);
     }
 
     public function test_delete_book_successfully(): void
@@ -574,14 +601,80 @@ class BookServiceTest extends TestCase
         $this->assertTrue($result->relationLoaded('subjects'));
     }
 
+    public function test_create_book_with_dto_from_model(): void
+    {
+        $bookMock = $this->createBookMock();
+        $dto = BookDTO::fromModel($bookMock);
+
+        $this->assertEquals($bookMock->Codl, $dto->codl);
+        $this->assertEquals($bookMock->Titulo, $dto->titulo);
+        $this->assertEquals($bookMock->Editora, $dto->editora);
+        $this->assertEquals($bookMock->Edicao, $dto->edicao);
+        $this->assertEquals($bookMock->AnoPublicacao, $dto->anoPublicacao);
+        $this->assertEquals(number_format((float) $bookMock->valor, 2, '.', ''), $dto->valor);
+
+        $this->assertIsArray($dto->authors);
+        $this->assertCount(2, $dto->authors);
+        $this->assertEquals(1, $dto->authors[0]['CodAu']);
+        $this->assertEquals('Autor 1', $dto->authors[0]['Nome']);
+        $this->assertEquals(2, $dto->authors[1]['CodAu']);
+        $this->assertEquals('Autor 2', $dto->authors[1]['Nome']);
+
+        $this->assertIsArray($dto->subjects);
+        $this->assertCount(2, $dto->subjects);
+        $this->assertEquals(1, $dto->subjects[0]['CodAs']);
+        $this->assertEquals('Assunto 1', $dto->subjects[0]['Descricao']);
+        $this->assertEquals(2, $dto->subjects[1]['CodAs']);
+        $this->assertEquals('Assunto 2', $dto->subjects[1]['Descricao']);
+    }
+
+    public function test_create_book_with_dto_from_request(): void
+    {
+        $bookData = $this->createBookData([
+            'valor' => '15,50'
+        ]);
+        $dto = BookDTO::fromRequest($bookData);
+
+        $this->assertEquals($bookData['codl'], $dto->codl);
+        $this->assertEquals($bookData['titulo'], $dto->titulo);
+        $this->assertEquals($bookData['editora'], $dto->editora);
+        $this->assertEquals($bookData['edicao'], $dto->edicao);
+        $this->assertEquals($bookData['anoPublicacao'], $dto->anoPublicacao);
+        $this->assertEquals('15.50', $dto->valor);
+        $this->assertEquals($bookData['authors'], $dto->authors);
+        $this->assertEquals($bookData['subjects'], $dto->subjects);
+    }
+
+    public function test_create_book_with_dto_to_array(): void
+    {
+        $bookData = $this->createBookData();
+        $dto = BookDTO::fromRequest($bookData);
+        $array = $dto->toArray();
+
+        $this->assertArrayHasKey('Codl', $array);
+        $this->assertArrayHasKey('Titulo', $array);
+        $this->assertArrayHasKey('Editora', $array);
+        $this->assertArrayHasKey('Edicao', $array);
+        $this->assertArrayHasKey('AnoPublicacao', $array);
+        $this->assertArrayHasKey('valor', $array);
+        $this->assertArrayHasKey('authors', $array);
+        $this->assertArrayHasKey('subjects', $array);
+        $this->assertEquals($bookData['codl'], $array['Codl']);
+        $this->assertEquals($bookData['titulo'], $array['Titulo']);
+        $this->assertEquals($bookData['editora'], $array['Editora']);
+        $this->assertEquals($bookData['edicao'], $array['Edicao']);
+        $this->assertEquals($bookData['anoPublicacao'], $array['AnoPublicacao']);
+        $this->assertEquals('10.00', $array['valor']);
+    }
+
     public function test_create_book_with_invalid_data(): void
     {
         $invalidData = [
-            'Titulo' => '',
-            'Editora' => 'Editora Teste',
-            'Edicao' => -1,
-            'AnoPublicacao' => '2025',
-            'valor' => '-10.00',
+            'titulo' => '',
+            'editora' => 'Editora Teste',
+            'edicao' => -1,
+            'anoPublicacao' => '2025',
+            'valor' => '-10,00',
             'authors' => [],
             'subjects' => []
         ];
