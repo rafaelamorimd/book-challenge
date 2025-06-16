@@ -68,8 +68,6 @@ class SubjectController extends Controller
 
     public function edit(Subject $subject): InertiaResponse|JsonResponse
     {
-        $subject = $this->subjectService->getSubject($subject);
-
         $subjectDTO = SubjectDTO::fromModel($subject);
 
         return $this->handleEditResponse(
@@ -83,7 +81,6 @@ class SubjectController extends Controller
 
     public function show(Subject $subject): InertiaResponse|JsonResponse
     {
-        $subject = $this->subjectService->getSubject($subject);
         $subjectDTO = SubjectDTO::fromRequest($subject->toArray());
 
         return $this->handleEditResponse(
@@ -98,7 +95,7 @@ class SubjectController extends Controller
     public function update(UpdateSubjectRequest $request, Subject $subject): RedirectResponse|JsonResponse
     {
         $dto = SubjectDTO::fromRequest($request->validated());
-        
+
         $updatedSubject = $this->subjectService->updateSubject($subject, $dto);
         $subjectDTO = SubjectDTO::fromModel($updatedSubject);
 

@@ -69,8 +69,8 @@ class AuthorController extends Controller
 
     public function edit(Author $author): InertiaResponse|JsonResponse
     {
-        $author = $this->authorService->getAuthor($author);
         $authorDTO = AuthorDTO::fromModel($author);
+        
         return $this->handleEditResponse(
             request: request(),
             data: $authorDTO,
@@ -82,7 +82,6 @@ class AuthorController extends Controller
 
     public function show(Author $author): InertiaResponse|JsonResponse
     {
-        $author = $this->authorService->getAuthor($author);
         $authorDTO = AuthorDTO::fromModel($author);
 
         return $this->handleEditResponse(

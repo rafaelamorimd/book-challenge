@@ -76,7 +76,6 @@ class BookController extends Controller
 
     public function edit(Book $book): InertiaResponse|JsonResponse
     {
-        $book = $this->bookService->getBook($book);
         $bookDTO = BookDTO::fromModel($book);
 
         $additionalData = [
@@ -95,7 +94,6 @@ class BookController extends Controller
 
     public function show(Book $book): InertiaResponse|JsonResponse
     {
-        $book = $this->bookService->getBook($book);
         $bookDTO = BookDTO::fromModel($book);
 
         $additionalData = [
