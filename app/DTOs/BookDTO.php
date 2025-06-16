@@ -9,11 +9,11 @@ use App\Models\Book;
 class BookDTO
 {
     public function __construct(
-        public readonly ?int $Codl = null,
-        public readonly string $Titulo = '',
-        public readonly string $Editora = '',
-        public readonly int $Edicao = 1,
-        public readonly string $AnoPublicacao = '',
+        public readonly ?int $codl = null,
+        public readonly string $titulo = '',
+        public readonly string $editora = '',
+        public readonly int $edicao = 1,
+        public readonly string $anoPublicacao = '',
         public readonly string $valor = '0.00',
         public readonly ?array $authors = null,
         public readonly ?array $subjects = null,
@@ -30,11 +30,11 @@ class BookDTO
         }
 
         return new self(
-            Codl: $data['Codl'] ?? null,
-            Titulo: $data['Titulo'],
-            Editora: $data['Editora'],
-            Edicao: (int) $data['Edicao'],
-            AnoPublicacao: (string)$data['AnoPublicacao'],
+            codl: $data['codl'] ?? null,
+            titulo: $data['titulo'],
+            editora: $data['editora'],
+            edicao: (int) $data['edicao'],
+            anoPublicacao: (string)$data['anoPublicacao'],
             valor: $valor,
             authors: $data['authors'] ?? null,
             subjects: $data['subjects'] ?? null,
@@ -44,11 +44,11 @@ class BookDTO
     public static function fromModel(Book $book): self
     {
         return new self(
-            Codl: $book->Codl,
-            Titulo: $book->Titulo,
-            Editora: $book->Editora,
-            Edicao: $book->Edicao,
-            AnoPublicacao: $book->AnoPublicacao,
+            codl: $book->Codl,
+            titulo: $book->Titulo,
+            editora: $book->Editora,
+            edicao: $book->Edicao,
+            anoPublicacao: $book->AnoPublicacao,
             valor: number_format((float) $book->valor, 2, '.', ''),
             authors: $book->authors->map(fn ($author) => [
                 'CodAu' => $author->CodAu,
@@ -64,11 +64,11 @@ class BookDTO
     public function toArray(): array
     {
         return array_filter([
-            'Codl' => $this->Codl,
-            'Titulo' => $this->Titulo,
-            'Editora' => $this->Editora,
-            'Edicao' => $this->Edicao,
-            'AnoPublicacao' => $this->AnoPublicacao,
+            'Codl' => $this->codl,
+            'Titulo' => $this->titulo,
+            'Editora' => $this->editora,
+            'Edicao' => $this->edicao,
+            'AnoPublicacao' => $this->anoPublicacao,
             'valor' => $this->valor,
             'authors' => $this->authors,
             'subjects' => $this->subjects,

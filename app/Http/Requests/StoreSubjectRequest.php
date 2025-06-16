@@ -22,17 +22,17 @@ class StoreSubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'Descricao' => 'required|string|max:40|min:3|unique:Assunto,Descricao',
+            'descricao' => 'required|string|max:40|min:3|unique:Assunto,Descricao',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'Descricao.required' => 'A descrição do assunto é obrigatória.',
-            'Descricao.max' => 'A descrição do assunto não pode ter mais de 40 caracteres.',
-            'Descricao.min' => 'A descrição do assunto deve ter pelo menos 3 caracteres.',
-            'Descricao.unique' => 'A descrição do assunto já existe.',
+            'descricao.required' => 'A descrição do assunto é obrigatória.',
+            'descricao.max' => 'A descrição do assunto não pode ter mais de 40 caracteres.',
+            'descricao.min' => 'A descrição do assunto deve ter pelo menos 3 caracteres.',
+            'descricao.unique' => 'A descrição do assunto já existe.',
         ];
     }
 }

@@ -56,7 +56,9 @@ class BookRepository
 
     private function getBaseQuery(): Builder
     {
-        return Book::query()->with(['authors', 'subjects']);
+        return Book::query()
+            ->with(['authors', 'subjects'])
+            ->orderBy('Codl');
     }
 
     private function applyFilters(Builder $query, array $filters): void

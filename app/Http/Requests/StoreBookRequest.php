@@ -24,10 +24,10 @@ class StoreBookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'Titulo' => ['required', 'string', 'max:40', 'min:3'],
-            'Editora' => ['required', 'string', 'max:40', 'min:3'],
-            'Edicao' => ['required', 'integer', 'min:1'],
-            'AnoPublicacao' => ['required', 'integer', 'min:1000', 'max:' . (date('Y'))],
+            'titulo' => ['required', 'string', 'max:40', 'min:3'],
+            'editora' => ['required', 'string', 'max:40', 'min:3'],
+            'edicao' => ['required', 'integer', 'min:1'],
+            'anoPublicacao' => ['required', 'integer', 'min:1000', 'max:' . (date('Y'))],
             'valor' => ['required', 'numeric', 'min:0'],
             'authors' => ['required', 'array', 'min:1'],
             'authors.*' => ['required', 'exists:Autor,CodAu'],
@@ -44,18 +44,18 @@ class StoreBookRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'Titulo.required' => 'O título do livro é obrigatório.',
-            'Titulo.max' => 'O título não pode ter mais de 40 caracteres.',
-            'Titulo.min' => 'O título deve ter pelo menos 3 caracteres.',
-            'Editora.required' => 'A editora é obrigatória.',
-            'Editora.max' => 'O nome da editora não pode ter mais de 40 caracteres.',
-            'Editora.min' => 'O nome da editora deve ter pelo menos 3 caracteres.',
-            'Edicao.required' => 'A edição é obrigatória.',
-            'Edicao.min' => 'A edição deve ser maior que zero.',
+            'titulo.required' => 'O título do livro é obrigatório.',
+            'titulo.max' => 'O título não pode ter mais de 40 caracteres.',
+            'titulo.min' => 'O título deve ter pelo menos 3 caracteres.',
+            'editora.required' => 'A editora é obrigatória.',
+            'editora.max' => 'O nome da editora não pode ter mais de 40 caracteres.',
+            'editora.min' => 'O nome da editora deve ter pelo menos 3 caracteres.',
+            'edicao.required' => 'A edição é obrigatória.',
+            'edicao.min' => 'A edição deve ser maior que zero.',
 
-            'AnoPublicacao.required' => 'O ano de publicação é obrigatório.',
-            'AnoPublicacao.min' => 'O ano de publicação deve ser maior que 999.',
-            'AnoPublicacao.max' => 'O ano de publicação não pode ser maior que o ano atual.',
+            'anoPublicacao.required' => 'O ano de publicação é obrigatório.',
+            'anoPublicacao.min' => 'O ano de publicação deve ser maior que 999.',
+            'anoPublicacao.max' => 'O ano de publicação não pode ser maior que o ano atual.',
             'valor.required' => 'O valor é obrigatório.',
             'valor.numeric' => 'O valor deve ser preenchido.',
             'valor.min' => 'O valor não pode ser negativo.',

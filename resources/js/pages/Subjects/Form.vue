@@ -1,10 +1,10 @@
 <template>
     <AppLayout title="Assuntos" :breadcrumbs="breadcrumbs">
-        <Head :title="props.subject?.CodAs ? 'Editar Assunto' : 'Novo Assunto'" />
+        <Head :title="props.subject?.codAs ? 'Editar Assunto' : 'Novo Assunto'" />
 
         <template #header>
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                {{ props.subject?.CodAs ? 'Editar Assunto' : 'Novo Assunto' }}
+                {{ props.subject?.codAs ? 'Editar Assunto' : 'Novo Assunto' }}
             </h2>
         </template>
 
@@ -15,10 +15,10 @@
                         <form @submit.prevent="submit">
                             <div class="mb-2">
                                 <InputLabel for="Descricao">Descrição</InputLabel>
-                                <Input id="Descricao" type="text" class="mt-1" v-model="form.Descricao" autofocus />
+                                <Input id="Descricao" type="text" class="mt-1" v-model="form.descricao" autofocus />
                             </div>
-                            <div v-if="form.errors.Descricao" class="mb-4 text-sm text-red-600">
-                                {{ form.errors.Descricao }}
+                            <div v-if="form.errors.descricao" class="mb-4 text-sm text-red-600">
+                                {{ form.errors.descricao }}
                             </div>
 
                             <div class="mt-4 flex items-center justify-between gap-4">
@@ -55,8 +55,8 @@ const props = defineProps({
 });
 
 const form = useForm({
-    CodAs: props.subject?.CodAs || '',
-    Descricao: props.subject?.Descricao || '',
+    codAs: props.subject?.codAs || '',
+    descricao: props.subject?.descricao || '',
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -75,8 +75,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const submit = () => {
-    if (props.subject?.CodAs) {
-        form.put(route('subjects.update', props.subject.CodAs));
+    if (props.subject?.codAs) {
+        form.put(route('subjects.update', props.subject.codAs));
     } else {
         form.post(route('subjects.store'));
     }

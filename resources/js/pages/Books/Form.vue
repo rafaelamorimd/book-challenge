@@ -1,10 +1,10 @@
 <template>
     <AppLayout title="Livros" :breadcrumbs="breadcrumbs">
-        <Head :title="props.book?.Codl ? 'Editar Livro' : 'Novo Livro'" />
+        <Head :title="props.book?.codl ? 'Editar Livro' : 'Novo Livro'" />
 
         <template #header>
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                {{ props.book?.Codl ? 'Editar Livro' : 'Novo Livro' }}
+                {{ props.book?.codl ? 'Editar Livro' : 'Novo Livro' }}
             </h2>
         </template>
 
@@ -19,12 +19,12 @@
                                     id="Titulo"
                                     type="text"
                                     class="mt-1 dark:border-[#3F3F46] dark:bg-[#27272A] dark:text-gray-200 dark:placeholder-gray-400"
-                                    v-model="form.Titulo"
+                                    v-model="form.titulo"
                                     autofocus
                                 />
                             </div>
-                            <div v-if="form.errors.Titulo" class="mb-4 text-sm text-red-500 dark:text-red-400">
-                                {{ form.errors.Titulo }}
+                            <div v-if="form.errors.titulo" class="mb-4 text-sm text-red-500 dark:text-red-400">
+                                {{ form.errors.titulo }}
                             </div>
                             <div class="mb-2">
                                 <InputLabel for="subjects" class="dark:text-gray-200">Assuntos</InputLabel>
@@ -58,11 +58,11 @@
                                     id="Editora"
                                     type="text"
                                     class="mt-1 dark:border-[#3F3F46] dark:bg-[#27272A] dark:text-gray-200 dark:placeholder-gray-400"
-                                    v-model="form.Editora"
+                                    v-model="form.editora"
                                 />
                             </div>
-                            <div v-if="form.errors.Editora" class="mb-4 text-sm text-red-500 dark:text-red-400">
-                                {{ form.errors.Editora }}
+                            <div v-if="form.errors.editora" class="mb-4 text-sm text-red-500 dark:text-red-400">
+                                {{ form.errors.editora }}
                             </div>
                             <div class="mb-2">
                                 <InputLabel for="Edicao" class="dark:text-gray-200">Edição</InputLabel>
@@ -70,13 +70,13 @@
                                     id="Edicao"
                                     type="number"
                                     class="mt-1 dark:border-[#3F3F46] dark:bg-[#27272A] dark:text-gray-200 dark:placeholder-gray-400"
-                                    v-model="form.Edicao"
+                                    v-model="form.edicao"
                                     min="1"
-                                    @input="form.Edicao = String(form.Edicao).replace(/[^0-9]/g, '')"
+                                    @input="form.edicao = String(form.edicao).replace(/[^0-9]/g, '')"
                                 />
                             </div>
-                            <div v-if="form.errors.Edicao" class="mb-4 text-sm text-red-500 dark:text-red-400">
-                                {{ form.errors.Edicao }}
+                            <div v-if="form.errors.edicao" class="mb-4 text-sm text-red-500 dark:text-red-400">
+                                {{ form.errors.edicao }}
                             </div>
                             <div class="mb-2">
                                 <InputLabel for="AnoPublicacao" class="dark:text-gray-200">Ano de Publicação</InputLabel>
@@ -84,13 +84,13 @@
                                     id="AnoPublicacao"
                                     type="number"
                                     class="mt-1 dark:border-[#3F3F46] dark:bg-[#27272A] dark:text-gray-200 dark:placeholder-gray-400"
-                                    v-model="form.AnoPublicacao"
+                                    v-model="form.anoPublicacao"
                                     min="1000"
                                     :max="currentYear"
                                 />
                             </div>
-                            <div v-if="form.errors.AnoPublicacao" class="mb-4 text-sm text-red-500 dark:text-red-400">
-                                {{ form.errors.AnoPublicacao }}
+                            <div v-if="form.errors.anoPublicacao" class="mb-4 text-sm text-red-500 dark:text-red-400">
+                                {{ form.errors.anoPublicacao }}
                             </div>
                             <div class="mb-2">
                                 <InputLabel for="valor" class="dark:text-gray-200">Valor</InputLabel>
@@ -115,7 +115,7 @@
                                 </div>
                                 <div class="w-6/12">
                                     <PrimaryButton type="submit" :disabled="form.processing">
-                                        {{ props.book?.Codl ? 'Atualizar' : 'Salvar' }}
+                                        {{ props.book?.codl ? 'Atualizar' : 'Salvar' }}
                                     </PrimaryButton>
                                 </div>
                             </div>
@@ -150,11 +150,11 @@ interface Subject {
 
 const props = defineProps<{
     book?: {
-        Codl: number;
-        Titulo: string;
-        Editora: string;
-        Edicao: number;
-        AnoPublicacao: number;
+        codl: number;
+        titulo: string;
+        editora: string;
+        edicao: number;
+        anoPublicacao: number;
         valor: string;
         authors?: Author[];
         subjects?: Subject[];
@@ -184,16 +184,12 @@ const subjectOptions = computed(
 const formatCurrency = (value: string | number): string => {
     if (!value || value === '') return '';
 
-    // Remove todos os caracteres não numéricos
     const numericValue = value.toString().replace(/\D/g, '');
 
-    // Se após remover caracteres não numéricos o valor estiver vazio, retorna string vazia
     if (!numericValue) return '';
 
-    // Converte para número e divide por 100 para considerar os centavos
     const floatValue = parseFloat(numericValue) / 100;
 
-    // Formata o número para o padrão brasileiro (R$ 0,00)
     return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL',
@@ -208,11 +204,11 @@ const unformatCurrency = (value: string): string => {
 };
 
 const form = useForm({
-    Codl: props.book?.Codl ?? null,
-    Titulo: props.book?.Titulo ?? '',
-    Editora: props.book?.Editora ?? '',
-    Edicao: Number(props.book?.Edicao ?? null),
-    AnoPublicacao: Number(props.book?.AnoPublicacao ?? null),
+    codl: props.book?.codl ?? null,
+    titulo: props.book?.titulo ?? '',
+    editora: props.book?.editora ?? '',
+    edicao: Number(props.book?.edicao ?? null),
+    anoPublicacao: Number(props.book?.anoPublicacao ?? null),
     valor: props.book?.valor ? formatCurrency(props.book.valor) : '',
     authors: props.book?.authors ? props.book.authors.map((author) => author.CodAu) : [],
     subjects: props.book?.subjects ? props.book.subjects.map((subject) => subject.CodAs) : [],
@@ -228,7 +224,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('books.index'),
     },
     {
-        title: props.book?.Codl ? 'Editar Livro' : 'Novo Livro',
+        title: props.book?.codl ? 'Editar Livro' : 'Novo Livro',
         href: route('books.create'),
     },
 ];
@@ -252,8 +248,8 @@ const submit = () => {
         form.valor = '';
     }
 
-    if (props.book?.Codl) {
-        form.put(route('books.update', props.book.Codl));
+    if (props.book?.codl) {
+        form.put(route('books.update', props.book.codl));
     } else {
         form.post(route('books.store'));
     }

@@ -19,7 +19,7 @@ class SubjectController extends Controller
     use HandlesApiResponses;
 
     private const PER_PAGE = 10;
-    private const FILTERS = ['search', 'Descricao', 'CodAs'];
+    private const FILTERS = ['search', 'descricao', 'codAs'];
 
     public function __construct(
         private readonly SubjectService $subjectService
@@ -69,6 +69,7 @@ class SubjectController extends Controller
     public function edit(Subject $subject): InertiaResponse|JsonResponse
     {
         $subject = $this->subjectService->getSubject($subject);
+
         $subjectDTO = SubjectDTO::fromModel($subject);
 
         return $this->handleEditResponse(
@@ -97,6 +98,7 @@ class SubjectController extends Controller
     public function update(UpdateSubjectRequest $request, Subject $subject): RedirectResponse|JsonResponse
     {
         $dto = SubjectDTO::fromRequest($request->validated());
+        
         $updatedSubject = $this->subjectService->updateSubject($subject, $dto);
         $subjectDTO = SubjectDTO::fromModel($updatedSubject);
 

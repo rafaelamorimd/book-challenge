@@ -24,6 +24,7 @@ class SubjectService
     {
         try {
             $this->logService->info('Buscando todos os assuntos');
+
             return $this->subjectRepository->getAllWithRelations();
         } catch (\Exception $e) {
             $this->logService->error('Erro ao buscar assuntos', [
@@ -37,6 +38,7 @@ class SubjectService
     {
         try {
             $this->logService->info('Buscando assuntos paginados', compact('filters', 'perPage'));
+
             return $this->subjectRepository->getAllPaginate($filters, $perPage);
         } catch (\Exception $e) {
             $this->logService->error('Erro ao buscar assuntos paginados', [
@@ -76,8 +78,11 @@ class SubjectService
     {
         try {
             $this->logService->info('Buscando assunto', ['subject_id' => $subject->CodAs]);
+
             $subject = $this->subjectRepository->findOrFail($subject->CodAs);
+
             $this->logService->info('Assunto encontrado com sucesso', ['subject_id' => $subject->CodAs]);
+
             return $subject->load('books');
         } catch (\Exception $e) {
             $this->logService->error('Erro ao buscar assunto', [
@@ -98,6 +103,7 @@ class SubjectService
 
             return DB::transaction(function () use ($subject, $dto) {
                 $oldData = $subject->toArray();
+                
                 $subject->update($dto->toArray());
 
                 $this->logService->info('Assunto atualizado com sucesso', [

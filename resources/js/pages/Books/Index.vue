@@ -21,7 +21,7 @@
                             :filterable="true"
                             :show-column-filter="true"
                             :show-status="true"
-                            search-placeholder="Buscar livros..."
+                            search-placeholder="Buscar livros por Título ou Editora..."
                             :paginate="true"
                             class="w-full"
                         >

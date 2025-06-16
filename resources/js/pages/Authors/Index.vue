@@ -21,7 +21,7 @@
                             :filterable="true"
                             :show-column-filter="true"
                             :show-status="true"
-                            search-placeholder="Buscar autores..."
+                            search-placeholder="Buscar por nome..."
                             :paginate="true"
                             class="w-full"
                         >

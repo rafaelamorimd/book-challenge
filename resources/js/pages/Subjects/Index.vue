@@ -21,7 +21,7 @@
                             :filterable="true"
                             :show-column-filter="true"
                             :show-status="true"
-                            search-placeholder="Buscar assuntos..."
+                            search-placeholder="Buscar por descrição..."
                             :paginate="true"
                             class="w-full"
                         >

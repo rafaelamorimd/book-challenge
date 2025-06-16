@@ -9,31 +9,31 @@ use App\Models\Author;
 class AuthorDTO
 {
     public function __construct(
-        public readonly ?int $CodAu = null,
-        public readonly ?string $Nome = null,
+        public readonly ?int $codAu = null,
+        public readonly ?string $nome = null,
     ) {
     }
 
     public static function fromRequest(array $data): self
     {
         return new self(
-            Nome: $data['Nome'],
+            nome: $data['nome'],
         );
     }
 
     public static function fromModel(Author $author): self
     {
         return new self(
-            CodAu: $author->CodAu,
-            Nome: $author->Nome,
+            codAu: $author->CodAu,
+            nome: $author->Nome,
         );
     }
 
     public function toArray(): array
     {
         return array_filter([
-            'CodAu' => $this->CodAu,
-            'Nome' => $this->Nome,
+            'CodAu' => $this->codAu,
+            'Nome' => $this->nome,
         ]);
     }
 }

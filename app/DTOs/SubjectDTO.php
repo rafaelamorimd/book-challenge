@@ -10,23 +10,23 @@ class SubjectDTO
 {
     public function __construct(
         public readonly ?int $codAs = null,
-        public readonly string $Descricao = '',
+        public readonly string $descricao = '',
     ) {
     }
 
     public static function fromRequest(array $data): self
     {
         return new self(
-            codAs: $data['CodAs'] ?? null,
-            Descricao: $data['Descricao'],
+            codAs: $data['codAs'] ?? null,
+            descricao: $data['descricao'],
         );
     }
 
     public static function fromModel(Subject $subject): self
     {
         return new self(
-            codAs: $subject->codAs,
-            Descricao: $subject->Descricao,
+            codAs: $subject->CodAs,
+            descricao: $subject->Descricao,
         );
     }
 
@@ -34,7 +34,7 @@ class SubjectDTO
     {
         return array_filter([
             'CodAs' => $this->codAs,
-            'Descricao' => $this->Descricao,
+            'Descricao' => $this->descricao,
         ]);
     }
 }

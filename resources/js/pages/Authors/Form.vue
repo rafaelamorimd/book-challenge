@@ -1,10 +1,10 @@
 <template>
     <AppLayout title="Autores" :breadcrumbs="breadcrumbs">
-        <Head :title="props.author?.CodAu ? 'Editar Autor' : 'Novo Autor'" />
+        <Head :title="props.author?.codAu ? 'Editar Autor' : 'Novo Autor'" />
 
         <template #header>
             <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                {{ props.author?.CodAu ? 'Editar Autor' : 'Novo Autor' }}
+                {{ props.author?.codAu ? 'Editar Autor' : 'Novo Autor' }}
             </h2>
         </template>
 
@@ -15,10 +15,10 @@
                         <form @submit.prevent="submit">
                             <div class="mb-2">
                                 <InputLabel for="Nome">Nome</InputLabel>
-                                <Input id="Nome" type="text" class="mt-1" v-model="form.Nome" autofocus />
+                                <Input id="Nome" type="text" class="mt-1" v-model="form.nome" autofocus />
                             </div>
-                            <div v-if="form.errors.Nome" class="mb-4 text-sm text-red-600">
-                                {{ form.errors.Nome }}
+                            <div v-if="form.errors.nome" class="mb-4 text-sm text-red-600">
+                                {{ form.errors.nome }}
                             </div>
 
                             <div class="mt-4 flex items-center justify-between gap-4">
@@ -29,7 +29,7 @@
                                 </div>
                                 <div class="w-6/12">
                                     <PrimaryButton type="submit" :disabled="form.processing">
-                                        {{ props.author?.CodAu ? 'Atualizar' : 'Salvar' }}
+                                        {{ props.author?.codAu ? 'Atualizar' : 'Salvar' }}
                                     </PrimaryButton>
                                 </div>
                             </div>
@@ -53,10 +53,10 @@ import { Head, Link, useForm } from '@inertiajs/vue3';
 const props = defineProps({
     author: Object,
 });
-
+console.log(props.author);
 const form = useForm({
-    CodAu: props.author?.CodAu || '',
-    Nome: props.author?.Nome || '',
+    codAu: props.author?.codAu || '',
+    nome: props.author?.nome || '',
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -69,14 +69,14 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('authors.index'),
     },
     {
-        title: props.author?.CodAu ? 'Editar Autor' : 'Novo Autor',
+        title: props.author?.codAu ? 'Editar Autor' : 'Novo Autor',
         href: route('authors.create'),
     },
 ];
 
 const submit = () => {
-    if (props.author?.CodAu) {
-        form.put(route('authors.update', props.author.CodAu));
+    if (props.author?.codAu) {
+        form.put(route('authors.update', props.author.codAu));
     } else {
         form.post(route('authors.store'));
     }

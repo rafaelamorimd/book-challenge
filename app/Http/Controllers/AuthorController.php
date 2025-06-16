@@ -20,7 +20,7 @@ class AuthorController extends Controller
     use HandlesApiResponses;
 
     private const PER_PAGE = 10;
-    private const FILTERS = ['search', 'nome', 'CodAu'];
+    private const FILTERS = ['search', 'nome', 'codAu'];
 
     public function __construct(
         private readonly AuthorService $authorService
@@ -71,7 +71,6 @@ class AuthorController extends Controller
     {
         $author = $this->authorService->getAuthor($author);
         $authorDTO = AuthorDTO::fromModel($author);
-
         return $this->handleEditResponse(
             request: request(),
             data: $authorDTO,
