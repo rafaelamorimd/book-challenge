@@ -58,7 +58,7 @@ class BookRepository
     {
         return Book::query()
             ->with(['authors', 'subjects'])
-            ->orderBy('Codl');
+            ->orderBy('Codl', 'desc');
     }
 
     private function applyFilters(Builder $query, array $filters): void

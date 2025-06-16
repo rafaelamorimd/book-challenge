@@ -55,7 +55,7 @@ class SubjectRepository
 
     private function getBaseQuery(): Builder
     {
-        return Subject::query()->orderBy('CodAs');
+        return Subject::query()->orderBy('CodAs', 'desc');
     }
 
     private function applyFilters(Builder $query, array $filters): void

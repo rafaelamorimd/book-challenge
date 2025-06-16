@@ -46,7 +46,7 @@ class AuthorRepository
 
     private function getBaseQuery(): Builder
     {
-        return Author::query()->orderBy('CodAu');
+        return Author::query()->orderBy('CodAu', 'desc');
     }
 
     private function applyFilters(Builder $query, array $filters): void
