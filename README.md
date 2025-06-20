@@ -109,7 +109,14 @@ docker-compose exec app php artisan db:seed
 docker-compose exec node npm run build
 ```
 
-Acessar o sistema
+### Acessar o Sistema
+
+Após completar a configuração, a aplicação estará disponível em:
+
+- **URL Principal**: http://localhost ou http://127.0.0.1
+- **Porta**: 80 (porta padrão HTTP)
+
+**Observação**: Certifique-se de que a porta 80 não esteja sendo utilizada por outro serviço em sua máquina.
 
 ## Estrutura de Diretórios
 
